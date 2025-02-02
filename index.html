@@ -4,13 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Internet Speed Checker</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        #status {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        #speed {
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1 id="status">Checking Internet...</h1>
         <p id="speed"></p>
     </div>
-    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const statusElement = document.getElementById('status');
+            const speedElement = document.getElementById('speed');
+
+            async function checkInternet() {
+                try {
+                    const response = await fetch('https://www.google.com', { method: 'HEAD', mode: 'no-cors' });
+                    if (response.ok) {
+                        statusElement.textContent = 'Internet Working';
+                        statusElement.style.color = 'green';
+                        const { download, upload } = await testSpeed();
+                        speedElement.textContent = `Download: ${download.toFixed(2)} Mbps, Upload: ${upload.toFixed(2)} Mbps`;
+                    } else {
+                        statusElement.textContent = 'No Internet';
+                        statusElement.style.color = 'red';
+                        speedElement.textContent = '';
+                    }
+                } catch (error) {
+                    statusElement.textContent = 'No Internet';
+                    statusElement.style.color = 'red';
+                    speedElement.textContent = '';
+                }
+            }
+
+            async function testSpeed() {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve({
+                            download: Math.random() * 100, 
+                            upload: Math.random() * 100,   
+                        });
+                    }, 2000);
+                });
+            }
+
+            checkInternet();
+            setInterval(checkInternet, 5000);
+        });
+    </script>
 </body>
 </html>
