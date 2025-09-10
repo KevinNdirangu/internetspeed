@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Internet Connectivity & Speed Checker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #e0eafc, #cfdef3);
+    }
+    .container {
+      text-align: center;
+      padding: 25px;
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      max-width: 420px;
+      width: 90%;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h1 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .status, .speed, .ping {
+      font-size: 18px;
+      margin: 10px 0;
+    }
+    .good { color: green; }
+    .ok { color: orange; }
+    .slow { color: red; }
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      transition: background 0.3s ease;
+      margin-top: 15px;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .history {
+      margin-top: 20px;
+      text-align: left;
+      font-size: 14px;
+      max-height: 120px;
+      overflow-y: auto;
+      border-top: 1px solid #ddd;
+      padding-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌐 Internet Speed Checker</h1>
+    <div id="status" class="status">Checking connection...</div>
+    <div id="ping" class="ping">Ping: -</div>
+    <div id="speed" class="speed">Speed: Not tested yet</div>
+    <button onclick="runTest()">Run Test</button>
+    <div class="history" id="history"></div>
+  </div>
+
+  <script>
+    const statusDiv = document.getElementById("status");
+    const speedDiv = document.getElementById("speed");
+    const pingDiv = document.getElementById("ping");
+    const historyDiv = document.getElementById("history");
+
+    // --- Connection status ---
+    function updateStatus() {
+      statusDiv.textContent = navigator.onLine ? "✅ Online" : "❌ Offline";
+      statusDiv.style.color = navigator.onLine ? "green" : "red";
+    }
+    window.addEventListener("online", updateStatus);
+    window.addEventListener("offline", updateStatus);
+    updateStatus();
+
+    // --- Ping Test ---
+    async function testPing(url = "https://jsonplaceholder.typicode.com/posts/1")
+ {
+      const start = performance.now();
+      try {
+        await fetch(url, { method: "GET", cache: "no-store" });
+        const end = performance.now();
+        return (end - start).toFixed(0);
+      } catch {
+        return "fail";
+      }
+    }
+
+    // --- Speed Test ---
+    async function testSpeed() {
+      const testFile = "https://proof.ovh.net/files/10Mb.dat"; // 10MB
+      const startTime = performance.now();
+      const cacheBuster = "?cache=" + Math.random();
+      try {
+        const response = await fetch(testFile + cacheBuster);
+        const blob = await response.blob();
+        const endTime = performance.now();
+
+        const duration = (endTime - startTime) / 1000;
+        const fileSize = blob.size / 1024 / 1024; // MB
+        const speedMbps = (fileSize * 8) / duration;
+        return speedMbps;
+      } catch {
+        return null;
+      }
+    }
+
+    // --- Run Full Test ---
+    async function runTest() {
+      speedDiv.textContent = "Testing speed...";
+      pingDiv.textContent = "Pinging...";
+
+      // Ping
+      const ping = await testPing();
+      pingDiv.textContent = ping !== "fail" ? `Ping: ${ping} ms` : "Ping failed";
+
+      // Speed
+      const speed = await testSpeed();
+      if (speed) {
+        let cls = "good";
+        if (speed < 5) cls = "slow";
+        else if (speed < 20) cls = "ok";
+        speedDiv.className = `speed ${cls}`;
+        speedDiv.textContent = `Speed: ${speed.toFixed(2)} Mbps`;
+
+        saveHistory(speed, ping);
+      } else {
+        speedDiv.textContent = "Speed test failed";
+        speedDiv.className = "speed slow";
+      }
+    }
+
+    // --- Save & Show History ---
+    function saveHistory(speed, ping) {
+      let history = JSON.parse(localStorage.getItem("speedHistory")) || [];
+      history.unshift({
+        time: new Date().toLocaleTimeString(),
+        speed: speed.toFixed(2),
+        ping,
+      });
+      if (history.length > 5) history.pop(); // keep last 5
+      localStorage.setItem("speedHistory", JSON.stringify(history));
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const history = JSON.parse(localStorage.getItem("speedHistory")) || [];
+      historyDiv.innerHTML = "<strong>History:</strong><br>" +
+        history.map(h => `${h.time} → ${h.speed} Mbps | ${h.ping} ms`).join("<br>");
+    }
+
+    renderHistory();
+  </script>
+</body>
+</html>
