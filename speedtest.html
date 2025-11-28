@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ndirangu SpeedTest Pro</title>
-  <!-- Using Inter font for that clean UI -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -20,11 +19,7 @@
       --danger: #ef4444;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -56,10 +51,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
+    header { text-align: center; margin-bottom: 30px; }
 
     h1 {
       font-size: 2rem;
@@ -90,7 +82,6 @@
       background-color: var(--text-muted);
       transition: background-color 0.3s, box-shadow 0.3s;
     }
-
     .status-dot.online { background-color: var(--success); box-shadow: 0 0 10px var(--success); }
     .status-dot.offline { background-color: var(--danger); box-shadow: 0 0 10px var(--danger); }
 
@@ -98,7 +89,7 @@
     .gauge-wrapper {
       position: relative;
       width: 240px;
-      height: 120px; /* Half circle height */
+      height: 120px;
       margin: 10px auto 40px;
       overflow: hidden;
     }
@@ -123,13 +114,10 @@
       position: absolute;
       top: 0;
       left: 0;
-      transform: rotate(-135deg); /* Start point */
-      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transform: rotate(-135deg);
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       z-index: 2;
     }
-
-    /* Mask to hide the bottom part for a perfect semi-circle look if needed, 
-       but overflow:hidden on wrapper handles it. */
 
     .gauge-value {
       position: absolute;
@@ -156,7 +144,7 @@
       letter-spacing: 1px;
     }
 
-    /* METRICS GRID */
+    /* METRICS */
     .metrics-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -173,10 +161,7 @@
       transition: transform 0.2s;
     }
 
-    .metric-card:hover {
-      transform: translateY(-2px);
-      background: rgba(255, 255, 255, 0.05);
-    }
+    .metric-card:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.05); }
 
     .metric-label {
       font-size: 0.75rem;
@@ -187,11 +172,7 @@
       font-weight: 600;
     }
 
-    .metric-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-main);
-    }
+    .metric-value { font-size: 1.5rem; font-weight: 700; color: var(--text-main); }
 
     /* INFO SECTION */
     .info-section {
@@ -206,23 +187,9 @@
       border: 1px solid rgba(255,255,255,0.05);
     }
 
-    .info-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .info-title {
-      color: var(--text-muted);
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .info-data {
-      color: var(--text-main);
-      font-weight: 600;
-    }
+    .info-item { display: flex; flex-direction: column; gap: 4px; }
+    .info-title { color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .info-data { color: var(--text-main); font-weight: 600; }
 
     /* BUTTONS */
     .btn-primary {
@@ -241,21 +208,9 @@
       overflow: hidden;
     }
 
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(99, 102, 241, 0.6);
-    }
-
-    .btn-primary:active {
-      transform: translateY(0);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.7;
-      cursor: wait;
-      transform: none;
-      filter: grayscale(0.5);
-    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(99, 102, 241, 0.6); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.7; cursor: wait; transform: none; filter: grayscale(0.5); }
 
     /* HISTORY */
     .history-section {
@@ -264,18 +219,8 @@
       padding-top: 25px;
     }
 
-    .history-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-
-    .history-title {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--text-main);
-    }
+    .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .history-title { font-size: 0.95rem; font-weight: 600; color: var(--text-main); }
 
     .btn-icon {
       background: transparent;
@@ -289,49 +234,20 @@
       transition: all 0.2s;
     }
 
-    .btn-icon:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-main);
-      border-color: rgba(255, 255, 255, 0.3);
-    }
+    .btn-icon:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-main); border-color: rgba(255, 255, 255, 0.3); }
 
-    .history-list {
-      list-style: none;
-      max-height: 150px;
-      overflow-y: auto;
-      padding-right: 5px;
-    }
+    .history-list { list-style: none; max-height: 150px; overflow-y: auto; padding-right: 5px; }
 
     .history-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 12px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 0.85rem;
+      display: flex; justify-content: space-between; padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.85rem;
     }
+    .history-item:last-child { border-bottom: none; }
+    .history-speed { font-weight: 700; color: var(--success); font-family: monospace; font-size: 0.95rem; }
 
-    .history-item:last-child {
-      border-bottom: none;
-    }
-
-    .history-speed {
-      font-weight: 700;
-      color: var(--success);
-      font-family: monospace; /* Align numbers nicely */
-      font-size: 0.95rem;
-    }
-
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 4px;
-    }
-    ::-webkit-scrollbar-track {
-      background: rgba(0,0,0,0.1);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.2);
-      border-radius: 4px;
-    }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -340,7 +256,7 @@
       <h1>SpeedTest</h1>
       <div class="status-indicator">
         <div id="status-dot" class="status-dot"></div>
-        <span id="status-text">Checking...</span>
+        <span id="status-text">Ready</span>
       </div>
     </header>
 
@@ -367,11 +283,11 @@
     <div class="info-section">
       <div class="info-item">
         <span class="info-title">IP Address</span>
-        <span id="ip-value" class="info-data">Loading...</span>
+        <span id="ip-value" class="info-data">Detecting...</span>
       </div>
       <div class="info-item" style="text-align: right;">
         <span class="info-title">Provider</span>
-        <span id="isp-value" class="info-data">Loading...</span>
+        <span id="isp-value" class="info-data">Detecting...</span>
       </div>
     </div>
 
@@ -380,26 +296,23 @@
     <div class="history-section">
       <div class="history-header">
         <span class="history-title">Recent Tests</span>
-        <button id="export-btn" class="btn-icon" title="Export to CSV">
-          Export CSV
-        </button>
+        <button id="export-btn" class="btn-icon" title="Export to CSV">Export CSV</button>
       </div>
       <ul id="history-list" class="history-list">
-        <!-- History items here -->
+        <!-- History injected here -->
       </ul>
     </div>
   </div>
 
   <script>
-    // --- CONFIGURATION ---
-    // Change this to match your folder structure if needed
-    // Example: "assets/10mb.bin" if the html is next to the assets folder
-    const LOCAL_TEST_FILE = "assets/test.bin"; 
+    // --- VERCEL CONFIGURATION ---
+    // We strictly use external endpoints to ensure Vercel compatibility.
+    // Cloudflare Speed Test Endpoint (Allows CORS)
+    const SPEED_TEST_FILE = "https://speed.cloudflare.com/__down?bytes=10000000"; 
     
-    // CHANGED: Use Cloudflare speed test endpoint for better CORS support
-    // 10MB = 10000000 bytes
-    const EXTERNAL_TEST_FILE = "https://speed.cloudflare.com/__down?bytes=10000000"; 
-    
+    // IP API that supports HTTPS (Crucial for Vercel/Netlify)
+    const IP_API_URL = "https://ipapi.co/json/";
+
     // DOM Elements
     const speedValue = document.getElementById('speed-value');
     const gaugeProgress = document.getElementById('gauge-progress');
@@ -412,10 +325,8 @@
     const runBtn = document.getElementById('run-btn');
     const historyList = document.getElementById('history-list');
 
-    // State
     let isTesting = false;
 
-    // Initialize
     function init() {
       updateOnlineStatus();
       window.addEventListener('online', updateOnlineStatus);
@@ -424,7 +335,6 @@
       renderHistory();
     }
 
-    // Network Status
     function updateOnlineStatus() {
       const isOnline = navigator.onLine;
       statusText.textContent = isOnline ? 'Online' : 'Offline';
@@ -432,43 +342,37 @@
       runBtn.disabled = !isOnline || isTesting;
     }
 
-    // IP & ISP Info
+    // UPDATED: Uses HTTPS compatible API
     async function fetchIpInfo() {
       try {
-        const res = await fetch('http://ip-api.com/json/?fields=status,message,query,isp');
+        const res = await fetch(IP_API_URL);
+        if (!res.ok) throw new Error('API limit or error');
         const data = await res.json();
-        if (data.status === 'success') {
-          ipValue.textContent = data.query;
-          ispValue.textContent = data.isp;
-        } else {
-          ipValue.textContent = 'Unknown';
-          ispValue.textContent = 'Unknown';
-        }
+        ipValue.textContent = data.ip || 'Unknown';
+        ispValue.textContent = data.org || data.asn || 'Unknown';
       } catch (e) {
-        console.warn('IP fetch failed, likely adblocker or https/http mixed content', e);
+        console.warn('IP fetch failed (likely AdBlock or Rate Limit)', e);
         ipValue.textContent = 'Hidden';
-        ispValue.textContent = 'Localhost';
+        ispValue.textContent = 'Private';
       }
     }
 
-    // Ping & Jitter Test
+    // Ping & Jitter
     async function testPingAndJitter() {
       const pings = [];
-      // Use a fast CDN for ping
+      // Using Cloudflare CDN for reliable low-latency ping
       const url = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"; 
 
       for (let i = 0; i < 5; i++) {
         const start = performance.now();
         try {
-          // Use HEAD method and no-store to avoid downloading body/caching
           await fetch(url + `?t=${Date.now()}`, { method: "HEAD", cache: "no-store", mode: 'no-cors' });
           const end = performance.now();
           pings.push(end - start);
         } catch (e) {
-          // Fallback logic if HEAD fails or network error
-          pings.push(50); // Simulated penalty
+          pings.push(60); // Penalty for failure
         }
-        await new Promise(r => setTimeout(r, 100));
+        await new Promise(r => setTimeout(r, 150));
       }
 
       if (pings.length === 0) return { ping: 0, jitter: 0 };
@@ -486,40 +390,15 @@
 
     // Speed Test
     async function testSpeed() {
-      let testUrl = LOCAL_TEST_FILE;
-      let usedFallback = false;
-
-      // Check if we can reach the local file first
-      try {
-        // We set a short timeout for the local check so we don't wait forever
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 1000);
-        
-        const check = await fetch(testUrl, { method: 'HEAD', signal: controller.signal });
-        clearTimeout(timeoutId);
-        
-        if (!check.ok) throw new Error("Local file not found");
-      } catch (e) {
-        console.log("Local asset not reachable (likely running in preview), switching to external fallback.");
-        testUrl = EXTERNAL_TEST_FILE;
-        usedFallback = true;
-      }
-
       const startTime = performance.now();
+      // Cloudflare requires random query params to bypass cache effectively
       const cacheBuster = "&cache=" + Math.random(); 
-      // Note: Cloudflare param uses & if bytes is first param, or ? if first. 
-      // The constant already has ?.
 
       try {
-        const response = await fetch(testUrl + cacheBuster);
+        const response = await fetch(SPEED_TEST_FILE + cacheBuster);
         
-        if (!response.ok) {
-           throw new Error(`Server returned ${response.status}`);
-        }
-
-        if (!response.body) {
-          throw new Error("ReadableStream not supported");
-        }
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        if (!response.body) throw new Error("No ReadableStream");
 
         const reader = response.body.getReader();
         let receivedLength = 0;
@@ -530,67 +409,49 @@
           
           receivedLength += value.length;
 
+          // Calculate current speed
           const currentTime = performance.now();
-          // Avoid division by zero!
-          const duration = Math.max((currentTime - startTime) / 1000, 0.001);
-
+          const duration = Math.max((currentTime - startTime) / 1000, 0.001); // Prevent /0
           const speedMbps = ((receivedLength * 8) / (1024 * 1024)) / duration;
+          
           updateGauge(speedMbps);
         }
 
         const endTime = performance.now();
         const duration = (endTime - startTime) / 1000;
         const fileSize = receivedLength / 1024 / 1024; // MB
-        
-        // Final calculation
-        let finalSpeed = 0;
-        if (duration <= 0.01) {
-             finalSpeed = 999; 
-        } else {
-             finalSpeed = (fileSize * 8) / duration;
-        }
+        const finalSpeed = (fileSize * 8) / duration;
 
         return finalSpeed;
 
       } catch (e) {
-        console.error("Speed test failed", e);
-        return null; // Return null so runTest() knows it failed
+        console.error("Speed test error:", e);
+        return null;
       }
     }
 
     function updateGauge(value) {
-      const maxSpeed = 100; // The visual max of the gauge
-
-      // SAFETY CHECK: Handle Infinity or NaN
-      if (!Number.isFinite(value)) {
-        if (value > maxSpeed) value = maxSpeed + 1; // Treat infinity as "Over Max"
-        else value = 0;
-      }
-
-      // Clamp visual progress to 0-1
+      const maxSpeed = 100; 
+      if (!Number.isFinite(value)) value = 0;
+      
       let progress = value / maxSpeed;
       if (progress > 1) progress = 1;
       if (progress < 0) progress = 0;
 
-      // -135deg to +45deg is a 180 degree span. 
-      // If progress is 0, rot is -135. If progress is 1, rot is 45.
       const rotation = -135 + (progress * 180);
-      
       gaugeProgress.style.transform = `rotate(${rotation}deg)`;
       speedValue.textContent = value.toFixed(1);
     }
 
-    // Run Test Wrapper
     async function runTest() {
       if (isTesting) return;
       isTesting = true;
       runBtn.disabled = true;
       runBtn.textContent = 'Testing...';
 
-      // Reset UI
       updateGauge(0);
-      pingValue.textContent = '-';
-      jitterValue.textContent = '-';
+      pingValue.textContent = '...';
+      jitterValue.textContent = '...';
 
       // 1. Ping
       const { ping, jitter } = await testPingAndJitter();
@@ -614,12 +475,9 @@
       runBtn.disabled = false;
     }
 
-    // Storage & History Logic
     function saveHistory(speed, ping, jitter) {
       let history = [];
-      try {
-        history = JSON.parse(localStorage.getItem('speedHistory')) || [];
-      } catch(e) {}
+      try { history = JSON.parse(localStorage.getItem('speedHistory')) || []; } catch(e) {}
 
       history.unshift({
         date: new Date().toISOString(),
@@ -635,9 +493,7 @@
 
     function renderHistory() {
       let history = [];
-      try {
-        history = JSON.parse(localStorage.getItem('speedHistory')) || [];
-      } catch(e) {}
+      try { history = JSON.parse(localStorage.getItem('speedHistory')) || []; } catch(e) {}
 
       historyList.innerHTML = history.map(h => `
         <li class="history-item">
@@ -650,10 +506,7 @@
 
     function exportHistory() {
       const history = JSON.parse(localStorage.getItem('speedHistory')) || [];
-      if (history.length === 0) {
-        alert('No history to export');
-        return;
-      }
+      if (history.length === 0) { alert('No history'); return; }
 
       const csvContent = "data:text/csv;charset=utf-8,"
         + "Date,Time,Speed (Mbps),Ping (ms),Jitter (ms)\n"
@@ -662,20 +515,17 @@
           return `${d.toLocaleDateString()},${d.toLocaleTimeString()},${h.speed},${h.ping},${h.jitter}`;
         }).join("\n");
 
-      const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
+      link.setAttribute("href", encodeURI(csvContent));
       link.setAttribute("download", "speed_test_history.csv");
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     }
 
-    // Listeners
     runBtn.addEventListener('click', runTest);
     document.getElementById('export-btn').addEventListener('click', exportHistory);
 
-    // Start
     init();
   </script>
 </body>
