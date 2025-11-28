@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ndirangu SpeedTest Pro</title>
+  <!-- Using Inter font for that clean UI -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #ec4899;
+      --bg-gradient: linear-gradient(135deg, #0f172a, #312e81);
+      --card-bg: rgba(255, 255, 255, 0.08);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    .app-container {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 40px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(to right, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--text-muted);
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    .status-dot.online { background-color: var(--success); box-shadow: 0 0 10px var(--success); }
+    .status-dot.offline { background-color: var(--danger); box-shadow: 0 0 10px var(--danger); }
+
+    /* GAUGE STYLES */
+    .gauge-wrapper {
+      position: relative;
+      width: 240px;
+      height: 120px; /* Half circle height */
+      margin: 10px auto 40px;
+      overflow: hidden;
+    }
+
+    .gauge-bg {
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      border: 20px solid rgba(255, 255, 255, 0.05);
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .gauge-progress {
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      border: 20px solid transparent;
+      border-top-color: var(--primary);
+      border-right-color: var(--secondary);
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: rotate(-135deg); /* Start point */
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 2;
+    }
+
+    /* Mask to hide the bottom part for a perfect semi-circle look if needed, 
+       but overflow:hidden on wrapper handles it. */
+
+    .gauge-value {
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      z-index: 3;
+    }
+
+    .speed-text {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--text-main);
+      text-shadow: 0 10px 20px rgba(0,0,0,0.5);
+      line-height: 1;
+    }
+
+    .unit-text {
+      font-size: 1rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* METRICS GRID */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .metric-card {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 20px;
+      border-radius: 16px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: transform 0.2s;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* INFO SECTION */
+    .info-section {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 30px;
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .info-title {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .info-data {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    /* BUTTONS */
+    .btn-primary {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      border: none;
+      border-radius: 16px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(99, 102, 241, 0.6);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: wait;
+      transform: none;
+      filter: grayscale(0.5);
+    }
+
+    /* HISTORY */
+    .history-section {
+      margin-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 25px;
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .history-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .btn-icon {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-icon:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .history-list {
+      list-style: none;
+      max-height: 150px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.85rem;
+    }
+
+    .history-item:last-child {
+      border-bottom: none;
+    }
+
+    .history-speed {
+      font-weight: 700;
+      color: var(--success);
+      font-family: monospace; /* Align numbers nicely */
+      font-size: 0.95rem;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.1);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.2);
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <h1>SpeedTest</h1>
+      <div class="status-indicator">
+        <div id="status-dot" class="status-dot"></div>
+        <span id="status-text">Checking...</span>
+      </div>
+    </header>
+
+    <div class="gauge-wrapper">
+      <div class="gauge-bg"></div>
+      <div id="gauge-progress" class="gauge-progress"></div>
+      <div class="gauge-value">
+        <div id="speed-value" class="speed-text">0.0</div>
+        <span class="unit-text">Mbps</span>
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Ping</div>
+        <div id="ping-value" class="metric-value">-</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Jitter</div>
+        <div id="jitter-value" class="metric-value">-</div>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <div class="info-item">
+        <span class="info-title">IP Address</span>
+        <span id="ip-value" class="info-data">Loading...</span>
+      </div>
+      <div class="info-item" style="text-align: right;">
+        <span class="info-title">Provider</span>
+        <span id="isp-value" class="info-data">Loading...</span>
+      </div>
+    </div>
+
+    <button id="run-btn" class="btn-primary">Run Speed Test</button>
+
+    <div class="history-section">
+      <div class="history-header">
+        <span class="history-title">Recent Tests</span>
+        <button id="export-btn" class="btn-icon" title="Export to CSV">
+          Export CSV
+        </button>
+      </div>
+      <ul id="history-list" class="history-list">
+        <!-- History items here -->
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // --- CONFIGURATION ---
+    // Change this to match your folder structure if needed
+    // Example: "assets/10mb.bin" if the html is next to the assets folder
+    const LOCAL_TEST_FILE = "assets/test.bin"; 
+    
+    // CHANGED: Use Cloudflare speed test endpoint for better CORS support
+    // 10MB = 10000000 bytes
+    const EXTERNAL_TEST_FILE = "https://speed.cloudflare.com/__down?bytes=10000000"; 
+    
+    // DOM Elements
+    const speedValue = document.getElementById('speed-value');
+    const gaugeProgress = document.getElementById('gauge-progress');
+    const pingValue = document.getElementById('ping-value');
+    const jitterValue = document.getElementById('jitter-value');
+    const ipValue = document.getElementById('ip-value');
+    const ispValue = document.getElementById('isp-value');
+    const statusText = document.getElementById('status-text');
+    const statusDot = document.getElementById('status-dot');
+    const runBtn = document.getElementById('run-btn');
+    const historyList = document.getElementById('history-list');
+
+    // State
+    let isTesting = false;
+
+    // Initialize
+    function init() {
+      updateOnlineStatus();
+      window.addEventListener('online', updateOnlineStatus);
+      window.addEventListener('offline', updateOnlineStatus);
+      fetchIpInfo();
+      renderHistory();
+    }
+
+    // Network Status
+    function updateOnlineStatus() {
+      const isOnline = navigator.onLine;
+      statusText.textContent = isOnline ? 'Online' : 'Offline';
+      statusDot.className = `status-dot ${isOnline ? 'online' : 'offline'}`;
+      runBtn.disabled = !isOnline || isTesting;
+    }
+
+    // IP & ISP Info
+    async function fetchIpInfo() {
+      try {
+        const res = await fetch('http://ip-api.com/json/?fields=status,message,query,isp');
+        const data = await res.json();
+        if (data.status === 'success') {
+          ipValue.textContent = data.query;
+          ispValue.textContent = data.isp;
+        } else {
+          ipValue.textContent = 'Unknown';
+          ispValue.textContent = 'Unknown';
+        }
+      } catch (e) {
+        console.warn('IP fetch failed, likely adblocker or https/http mixed content', e);
+        ipValue.textContent = 'Hidden';
+        ispValue.textContent = 'Localhost';
+      }
+    }
+
+    // Ping & Jitter Test
+    async function testPingAndJitter() {
+      const pings = [];
+      // Use a fast CDN for ping
+      const url = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"; 
+
+      for (let i = 0; i < 5; i++) {
+        const start = performance.now();
+        try {
+          // Use HEAD method and no-store to avoid downloading body/caching
+          await fetch(url + `?t=${Date.now()}`, { method: "HEAD", cache: "no-store", mode: 'no-cors' });
+          const end = performance.now();
+          pings.push(end - start);
+        } catch (e) {
+          // Fallback logic if HEAD fails or network error
+          pings.push(50); // Simulated penalty
+        }
+        await new Promise(r => setTimeout(r, 100));
+      }
+
+      if (pings.length === 0) return { ping: 0, jitter: 0 };
+
+      const avgPing = pings.reduce((a, b) => a + b, 0) / pings.length;
+      
+      let jitterSum = 0;
+      for (let i = 0; i < pings.length - 1; i++) {
+        jitterSum += Math.abs(pings[i] - pings[i + 1]);
+      }
+      const jitter = pings.length > 1 ? jitterSum / (pings.length - 1) : 0;
+
+      return { ping: avgPing, jitter: jitter };
+    }
+
+    // Speed Test
+    async function testSpeed() {
+      let testUrl = LOCAL_TEST_FILE;
+      let usedFallback = false;
+
+      // Check if we can reach the local file first
+      try {
+        // We set a short timeout for the local check so we don't wait forever
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1000);
+        
+        const check = await fetch(testUrl, { method: 'HEAD', signal: controller.signal });
+        clearTimeout(timeoutId);
+        
+        if (!check.ok) throw new Error("Local file not found");
+      } catch (e) {
+        console.log("Local asset not reachable (likely running in preview), switching to external fallback.");
+        testUrl = EXTERNAL_TEST_FILE;
+        usedFallback = true;
+      }
+
+      const startTime = performance.now();
+      const cacheBuster = "&cache=" + Math.random(); 
+      // Note: Cloudflare param uses & if bytes is first param, or ? if first. 
+      // The constant already has ?.
+
+      try {
+        const response = await fetch(testUrl + cacheBuster);
+        
+        if (!response.ok) {
+           throw new Error(`Server returned ${response.status}`);
+        }
+
+        if (!response.body) {
+          throw new Error("ReadableStream not supported");
+        }
+
+        const reader = response.body.getReader();
+        let receivedLength = 0;
+        
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          receivedLength += value.length;
+
+          const currentTime = performance.now();
+          // Avoid division by zero!
+          const duration = Math.max((currentTime - startTime) / 1000, 0.001);
+
+          const speedMbps = ((receivedLength * 8) / (1024 * 1024)) / duration;
+          updateGauge(speedMbps);
+        }
+
+        const endTime = performance.now();
+        const duration = (endTime - startTime) / 1000;
+        const fileSize = receivedLength / 1024 / 1024; // MB
+        
+        // Final calculation
+        let finalSpeed = 0;
+        if (duration <= 0.01) {
+             finalSpeed = 999; 
+        } else {
+             finalSpeed = (fileSize * 8) / duration;
+        }
+
+        return finalSpeed;
+
+      } catch (e) {
+        console.error("Speed test failed", e);
+        return null; // Return null so runTest() knows it failed
+      }
+    }
+
+    function updateGauge(value) {
+      const maxSpeed = 100; // The visual max of the gauge
+
+      // SAFETY CHECK: Handle Infinity or NaN
+      if (!Number.isFinite(value)) {
+        if (value > maxSpeed) value = maxSpeed + 1; // Treat infinity as "Over Max"
+        else value = 0;
+      }
+
+      // Clamp visual progress to 0-1
+      let progress = value / maxSpeed;
+      if (progress > 1) progress = 1;
+      if (progress < 0) progress = 0;
+
+      // -135deg to +45deg is a 180 degree span. 
+      // If progress is 0, rot is -135. If progress is 1, rot is 45.
+      const rotation = -135 + (progress * 180);
+      
+      gaugeProgress.style.transform = `rotate(${rotation}deg)`;
+      speedValue.textContent = value.toFixed(1);
+    }
+
+    // Run Test Wrapper
+    async function runTest() {
+      if (isTesting) return;
+      isTesting = true;
+      runBtn.disabled = true;
+      runBtn.textContent = 'Testing...';
+
+      // Reset UI
+      updateGauge(0);
+      pingValue.textContent = '-';
+      jitterValue.textContent = '-';
+
+      // 1. Ping
+      const { ping, jitter } = await testPingAndJitter();
+      pingValue.textContent = ping.toFixed(0) + ' ms';
+      jitterValue.textContent = jitter.toFixed(0) + ' ms';
+
+      // 2. Speed
+      const speed = await testSpeed();
+
+      if (speed !== null) {
+        updateGauge(speed);
+        saveHistory(speed, ping, jitter);
+        runBtn.textContent = 'Run Speed Test';
+      } else {
+        speedValue.textContent = 'Error';
+        gaugeProgress.style.transform = `rotate(-135deg)`;
+        runBtn.textContent = 'Try Again';
+      }
+
+      isTesting = false;
+      runBtn.disabled = false;
+    }
+
+    // Storage & History Logic
+    function saveHistory(speed, ping, jitter) {
+      let history = [];
+      try {
+        history = JSON.parse(localStorage.getItem('speedHistory')) || [];
+      } catch(e) {}
+
+      history.unshift({
+        date: new Date().toISOString(),
+        speed: speed.toFixed(2),
+        ping: ping.toFixed(0),
+        jitter: jitter.toFixed(0)
+      });
+
+      if (history.length > 50) history.pop();
+      localStorage.setItem('speedHistory', JSON.stringify(history));
+      renderHistory();
+    }
+
+    function renderHistory() {
+      let history = [];
+      try {
+        history = JSON.parse(localStorage.getItem('speedHistory')) || [];
+      } catch(e) {}
+
+      historyList.innerHTML = history.map(h => `
+        <li class="history-item">
+          <span>${new Date(h.date).toLocaleTimeString()}</span>
+          <span class="history-speed">${h.speed} Mbps</span>
+          <span>${h.ping} ms</span>
+        </li>
+      `).join('');
+    }
+
+    function exportHistory() {
+      const history = JSON.parse(localStorage.getItem('speedHistory')) || [];
+      if (history.length === 0) {
+        alert('No history to export');
+        return;
+      }
+
+      const csvContent = "data:text/csv;charset=utf-8,"
+        + "Date,Time,Speed (Mbps),Ping (ms),Jitter (ms)\n"
+        + history.map(h => {
+          const d = new Date(h.date);
+          return `${d.toLocaleDateString()},${d.toLocaleTimeString()},${h.speed},${h.ping},${h.jitter}`;
+        }).join("\n");
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "speed_test_history.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Listeners
+    runBtn.addEventListener('click', runTest);
+    document.getElementById('export-btn').addEventListener('click', exportHistory);
+
+    // Start
+    init();
+  </script>
+</body>
+</html>
